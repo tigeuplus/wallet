@@ -1,31 +1,17 @@
-import { anyToTransaction, Transaction, Wallet } from '@tigeuplus/core'
+import { Node } from '@tigeuplus/core'
 import * as express from 'express'
-import { readdirSync } from 'fs'
+import { readdirSync, readFileSync } from 'fs'
 import * as path from 'path'
+import { Json } from '@tigeuplus/utility'
+import { anyToTransaction, Transaction } from '@tigeuplus/class'
 
-function stringify(data: any): string
-{
-    return JSON.stringify(data, (key: string, value: any) => typeof value === 'bigint' ? `${value.toString()}n` : value)
-}
-
-function parse(data: any): any
-{
-    return JSON.parse(data, (key: string, value: any) =>
-    {
-        if (typeof value === 'string' && /^\d+n$/.test(value)) 
-            return BigInt(value.slice(0, value.length - 1))
-
-        return value
-    })
-}
-
-export function Transactions(wallet: Wallet, req: express.Request, res: express.Response, next: express.NextFunction): void
+export function Transactions(node: Node, req: express.Request, res: express.Response, next: express.NextFunction): void
 {
     let transactions: Transaction[] = []
-    readdirSync(path.join(wallet.storage, 'transactions'))
+    readdirSync(path.join(node.storage, 'transactions'))
         .forEach((file: string): void =>
         {
-            let transaction: Transaction | undefined = anyToTransaction(parse(readdirSync(path.join(wallet.storage, 'transactions', file), { encoding: 'utf8' })))
+            let transaction: Transaction | undefined = anyToTransaction(new Json().parse(readFileSync(path.join(node.storage, 'transactions', file), { encoding: 'utf8' })))
             if (transaction)
                 transactions.push(transaction)
         })
@@ -56,7 +42,7 @@ export function Transactions(wallet: Wallet, req: express.Request, res: express.
             + `</li>`
             )
 
-    return res.render('transactions', { address: wallet.address, transactionsHtml: transactionsHtml.join('  ') })
+    return res.render('transactions', { address: node.address, transactionsHtml: transactionsHtml.join('  ') })
 }
 
 export * from './Hash'

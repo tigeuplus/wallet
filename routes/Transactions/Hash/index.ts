@@ -1,40 +1,26 @@
-import { Spider, Wallet, Transaction, anyToTransaction } from '@tigeuplus/core'
+import { Node } from '@tigeuplus/core'
 import * as express from 'express'
-import { existsSync, readdirSync } from 'fs'
+import { existsSync, readdirSync, readFileSync } from 'fs'
 import * as path from 'path'
+import { Json } from '@tigeuplus/utility'
+import { Spider, anyToTransaction, Transaction } from '@tigeuplus/class'
 
-function stringify(data: any): string
-{
-    return JSON.stringify(data, (key: string, value: any) => typeof value === 'bigint' ? `${value.toString()}n` : value)
-}
-
-function parse(data: any): any
-{
-    return JSON.parse(data, (key: string, value: any) =>
-    {
-        if (typeof value === 'string' && /^\d+n$/.test(value)) 
-            return BigInt(value.slice(0, value.length - 1))
-
-        return value
-    })
-}
-
-export function postTransactionHash(wallet: Wallet, req: express.Request, res: express.Response, next: express.NextFunction): express.Response<any, Record<string, any>>
+export function postTransactionHash(node: Node, req: express.Request, res: express.Response, next: express.NextFunction): express.Response<any, Record<string, any>>
 {
     let hash: any = req.body.hash
     if (typeof hash === 'string')
     {
-        if (existsSync(path.join(wallet.storage, 'transactions', `${hash}.json`)))
+        if (existsSync(path.join(node.storage, 'transactions', `${hash}.json`)))
             return res.status(200).json({ status: 'success', result: true })
 
-        if (wallet.cobweb.spiders[hash])
+        if (node.cobweb.spiders[hash])
             return res.status(200).json({ status: 'success', result: true })
     }
 
     return res.status(200).json({ status: 'success', result: false })
 }
 
-export function TransactionsHash(wallet: Wallet, req: express.Request, res: express.Response, next: express.NextFunction): void
+export function TransactionsHash(node: Node, req: express.Request, res: express.Response, next: express.NextFunction): void
 {
     let hash: string = req.params.hash
     let process: number = 100
@@ -43,7 +29,7 @@ export function TransactionsHash(wallet: Wallet, req: express.Request, res: expr
     let transfersHtml: string[] = []
     let author: string = '소유자 미존재'
 
-    let spider: Spider | undefined = wallet.cobweb.spiders[hash]
+    let spider: Spider | undefined = node.cobweb.spiders[hash]
     let transaction: Transaction | undefined
     if (spider)
     {
@@ -142,8 +128,8 @@ export function TransactionsHash(wallet: Wallet, req: express.Request, res: expr
     }
     else
     {
-        if (existsSync(path.join(wallet.storage, 'transactions', `${hash}.json`)))
-            transaction = anyToTransaction(parse(readdirSync(path.join(wallet.storage, 'transactions', `${hash}.json`), { encoding: 'utf8' })))
+        if (existsSync(path.join(node.storage, 'transactions', `${hash}.json`)))
+            transaction = anyToTransaction(new Json().parse(readFileSync(path.join(node.storage, 'transactions', `${hash}.json`), { encoding: 'utf8' })))
 
         if (transaction)
         {
@@ -259,5 +245,5 @@ export function TransactionsHash(wallet: Wallet, req: express.Request, res: expr
         spiders = 0
     }
 
-    return res.render('transaction', { address: wallet.address, hash: hash, author: author, process: process, spiders: spiders.toLocaleString(), targetsHtml: targetsHtml.join('  '), transfersHtml: transfersHtml.join(' ') })
+    return res.render('transaction', { address: node.address, hash: hash, author: author, process: process, spiders: spiders.toLocaleString(), targetsHtml: targetsHtml.join('  '), transfersHtml: transfersHtml.join(' ') })
 }

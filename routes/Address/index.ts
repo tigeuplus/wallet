@@ -1,7 +1,16 @@
-import { Wallet } from '@tigeuplus/core'
+import { Node } from '@tigeuplus/core'
 import * as express from 'express'
+import { existsSync, readFileSync } from 'fs'
+import * as path from 'path'
 
-export function Address(wallet: Wallet, req: express.Request, res: express.Response, next: express.NextFunction): void
+export function Address(node: Node, req: express.Request, res: express.Response, next: express.NextFunction): void
 {
-    return res.render('address', { address: wallet.address, balance: wallet.getBalance(req.params.address) })
+    try
+    {
+        if (existsSync(path.join(node.storage, 'balances', `${req.params.address}.json`)))
+            return res.render('address', { address: req.params.address, balance: `${BigInt(readFileSync(path.join(node.storage, 'balances', `${req.params.address}.json`), { encoding: 'utf8' }))}` })
+    }
+    catch (error: any) {}
+
+    return res.render('address', { address: req.params.address, balance: '0n' })
 }
