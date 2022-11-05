@@ -1,6 +1,6 @@
 {
     "name": "@tigeuplus/wallet",
-    "version": "v1.0.0",
+    "version": "v1.0.1",
     "description": "Tigeu Network 프로젝트 지갑 예제",
     "private": false,
     "scripts": {
@@ -9,8 +9,9 @@
     "author": "cobeol <cobeol0111@gmail.com>",
     "license": "MIT",
     "dependencies": {
-        "@tigeuplus/core": "^1.0.0",
-        "@tigeuplus/class": "^1.0.0",
+        "@tigeuplus/class": "^1.0.1",
+        "@tigeuplus/core": "^1.0.1",
+        "@tigeuplus/utility": "^2.0.0",
         "cookie-parser": "^1.4.6",
         "ejs": "^3.1.8",
         "elliptic": "^6.5.4",

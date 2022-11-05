@@ -129,7 +129,7 @@ export function TransactionsHash(node: Node, req: express.Request, res: express.
     else
     {
         if (existsSync(path.join(node.storage, 'transactions', `${hash}.json`)))
-            transaction = anyToTransaction(new Json().parse(readFileSync(path.join(node.storage, 'transactions', `${hash}.json`), { encoding: 'utf8' })))
+            transaction = anyToTransaction(Json.parse(readFileSync(path.join(node.storage, 'transactions', `${hash}.json`), { encoding: 'utf8' })))
 
         if (transaction)
         {

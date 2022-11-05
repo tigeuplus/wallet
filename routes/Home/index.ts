@@ -11,7 +11,7 @@ export function Home(node: Node, req: express.Request, res: express.Response, ne
     readdirSync(path.join(node.storage, 'transactions'))
         .forEach((file: string): void =>
         {
-            let transaction: Transaction | undefined = anyToTransaction(new Json().parse(readFileSync(path.join(node.storage, 'transactions', file), { encoding: 'utf8' })))
+            let transaction: Transaction | undefined = anyToTransaction(Json.parse(readFileSync(path.join(node.storage, 'transactions', file), { encoding: 'utf8' })))
             if (transaction)
                 transactions.push(transaction)
         })
