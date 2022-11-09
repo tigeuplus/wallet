@@ -1,6 +1,6 @@
 {
     "name": "@tigeuplus/wallet",
-    "version": "v1.0.1",
+    "version": "v1.0.2",
     "description": "Tigeu Network 프로젝트 지갑 예제",
     "private": false,
     "scripts": {
